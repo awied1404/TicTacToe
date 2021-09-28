@@ -10,6 +10,7 @@ public:
     t_TTTState playersMove(int iRow, int iCol);
     void startGame(t_FieldState startingPlayer);
     void printGame();
+    bool getGameFields(int * piFields);
 
 private:
     t_FieldState aiGameFields[ROWS][COLUMNS] = {UNDEFINED};

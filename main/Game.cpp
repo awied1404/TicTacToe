@@ -18,7 +18,7 @@ Game::t_GAME_STATE Game::startGame()
         return INIT_ERROR;
     }
 
-    game.startGame((TicTacToe::t_FieldState) 1);
+    game.startGame((TicTacToe::t_FieldState) random(2));
     int iRow, iCol;
     while(true)
     {

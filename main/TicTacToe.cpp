@@ -22,6 +22,7 @@ TicTacToe::t_TTTState TicTacToe::playersMove(int iRow, int iCol)
         if (aiGameFields[iRow][iCol] == UNDEFINED)
         {
             aiGameFields[iRow][iCol] = activePlayer;
+            /* change the active player */
             if (activePlayer == PLAYER_ONE)
             {
                 activePlayer = PLAYER_TWO;
@@ -200,4 +201,19 @@ void TicTacToe::printGame()
             Serial.println("-----------");
         }
     }
+}
+
+bool TicTacToe::getGameFields(int * piGameField)
+{
+    /* param valid check */
+    if (piGameField == NULL)
+    {
+        return false;
+    }
+
+    for(int i = 0; i < ROWS*COLUMNS; i++)
+    {
+        *(piGameField+i) = (int) aiGameFields[i];
+    }
+    return true;
 }
