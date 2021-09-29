@@ -13,6 +13,7 @@ public:
 private:
     bool parseGameFields(char * pcInput, int * piGameField);
     bool parseWinner(char * pcInput, int * piPlayerWon, int * piStartingField, int * piEndingField);
+    int fillStringsWithTokenizer(char * pcInput, char *pcDelim, char * strings[]);
 
     int aiGameFields[9] = {0};
     int iPlayerWon = -1;

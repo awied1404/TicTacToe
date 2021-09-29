@@ -11,12 +11,14 @@ public:
     void startGame(t_FieldState startingPlayer);
     void printGame();
     bool getGameFields(int * piFields);
+    bool getWinningFields(int * piPlayer, int * piStartingField, int * piEndingField);
 
+    t_TTTState gameFinished(bool verbose = false);
 private:
     t_FieldState aiGameFields[ROWS][COLUMNS] = {UNDEFINED};
     t_FieldState activePlayer = UNDEFINED;
+    int iStartingField, iEndingField;
 
-    t_TTTState gameFinished();
     t_TTTState tttStateFromFieldState(t_FieldState tState);
 
 };

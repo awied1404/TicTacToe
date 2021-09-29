@@ -1,6 +1,7 @@
 #include "config.h"
 #include "TicTacToe.h"
 #include "Hardware.h"
+#include "SerialComm.h"
 class Game
 {
 public:
@@ -16,4 +17,5 @@ private:
 
     TicTacToe game;
     Hardware hw;
+    SerialComm comm;
 };

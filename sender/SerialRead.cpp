@@ -9,13 +9,11 @@ bool SerialRead::read()
 		char acBuffer[100] = {0};
 		char * strings[5];
 		int iCharsRead = Serial.readBytesUntil('\n', acBuffer, sizeof(acBuffer) - 1);
-		char * ptr = strtok(acBuffer, "|");
-		byte index = 0;
-		while(ptr != NULL)
+		char * strings[5];
+    	int iTransmittedFields = fillStringsWithTokenizer(pcChar, "|", strings);	
+		if (iTransmittedFields == 0)
 		{
-			strings[index] = ptr;
-			index++;
-			ptr = strtok(acBuffer, "|");
+			return false;
 		}
 		if (!parseGameFields(strings[1], aiGameFields))
 		{
@@ -33,12 +31,34 @@ bool SerialRead::read()
 	return true;
 }
 
+int SerialRead::fillStringsWithTokenizer(char * pcInput, char *pcDelim, char * strings[])
+{
+	char * ptr = strtok(pcInput, pcDelim);
+    int index = 0;
+    while (ptr != NULL)
+    {
+        strings[index] = ptr;
+        index ++;
+        ptr = strtok(NULL, pcDelim);
+    }
+    return index;
+}
+
 bool SerialRead::parseGameFields(char * pcInput, int * piGameField)
 {
 	if (pcInput == NULL || piGameField == NULL)
 	{
 		return false;
 	}
+	char * strings[3];
+    if (fillStringsWithTokenizer(pcInput, " ", strings))
+    {
+        char * pcGameFields = strings[1];
+        for(int i = 0; i < 2*9; i+=2)
+        {
+            *(piGameField + i/2) = atoi(&pcGameFields[i]);
+        }
+    }
 	return true;
 }
 
@@ -48,6 +68,18 @@ bool SerialRead::parseWinner(char * pcInput, int * piPlayerWon, int * piStarting
 	{
 		return false;
 	}
+	char * strings[5];
+    if (fillStringsWithTokenizer(pcInput, ":,", strings) > 0)
+    {
+        *piPlayerWon = atoi(strings[1]);
+        *piStartingField = atoi(strings[2]);
+        *piEndingField = atoi(strings[3]);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 	return true;
 }
 

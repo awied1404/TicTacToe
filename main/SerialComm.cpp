@@ -50,14 +50,16 @@ void SerialComm::resetValues()
 void SerialComm::send(int aiGameField[ROWS*COLUMNS])
 {
     Serial.print("START |");
-    char buffer [ROWS*COLUMNS + 1] = {0};
-    for (int i = 0; i < ROWS*COLUMNS; i++)
+    char buffer [2*ROWS*COLUMNS + 1] = {0};
+    for (int i = 0; i < 2*ROWS*COLUMNS; i+=2)
     {
-        buffer[i] = aiGameField[i] + ASCII_ZERO;
+        buffer[i] = aiGameField[i/2] + ASCII_ZERO;
+        buffer[i+1] = ASCII_COMMA;
     }
+    buffer[2*ROWS*COLUMNS - 1] = 0;
     Serial.print("FIELD: ");
     Serial.print(buffer);
-    Serial.print(" | ")
+    Serial.print(" | ");
 
     if (iPlayerWon != -1)
     {

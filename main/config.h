@@ -1,3 +1,4 @@
 #define COLUMNS 3
 #define ROWS COLUMNS
 #define ASCII_ZERO 48
+#define ASCII_COMMA 44

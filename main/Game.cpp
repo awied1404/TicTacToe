@@ -20,21 +20,38 @@ Game::t_GAME_STATE Game::startGame()
 
     game.startGame((TicTacToe::t_FieldState) random(2));
     int iRow, iCol;
-    while(true)
+    bool bRunning = true;
+    int iMovesMade = 0;
+    while(bRunning)
     {
         if(hw.getNextField(&iRow, &iCol) != Hardware::HW_OK)
         {
             break;
         }
-        char buffer[30] = {0};
-        snprintf(buffer, 30, "Row: %i , Col: %i", iRow, iCol);
-        Serial.println(buffer);
         if(game.playersMove(iRow, iCol) != TicTacToe::GAME_RUNNING)
         {
-            break;
+            bRunning = false;
         }
         delay(1000);
-        game.printGame();
+        //char buffer[30] = {0};
+        //snprintf(buffer, 30, "Row: %i , Col: %i", iRow, iCol);
+        //Serial.println(buffer);
+        //iMovesMade++;
+        int aiGameField[9] ={0};
+        //if (iMovesMade > 10)
+        //{
+            //game.gameFinished(true);
+        //}
+        if (game.getGameFields(aiGameField))
+        {
+            int iStartingField, iEndingField, iPlayer;
+            if (game.getWinningFields(&iPlayer, &iStartingField, &iEndingField))
+            {
+                comm.addWinner(iPlayer, iStartingField, iEndingField);
+            }
+            comm.send(aiGameField);
+        }
+
 
     }
 

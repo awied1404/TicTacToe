@@ -41,35 +41,74 @@ TicTacToe::t_TTTState TicTacToe::playersMove(int iRow, int iCol)
     return returnState;
 }
 
-TicTacToe::t_TTTState TicTacToe::gameFinished()
+TicTacToe::t_TTTState TicTacToe::gameFinished(bool verbose)
 {
     t_TTTState returnState = GAME_RUNNING;
     t_FieldState previousState = UNDEFINED;
 
+    if (verbose)
+    {
+        Serial.println("#################");
+        printGame();
+    }
     /* check rows for a winner*/
+    if (verbose)
+    {
+        Serial.println("Checking rows");
+    }
     for (int i=0; i < ROWS; i++)
     {
         previousState = UNDEFINED;
         for(int j = 0; j < COLUMNS; j++)
         {
             t_FieldState currentState = aiGameFields[i][j];
-            if(j == 0) /* first field in the column*/
+            if(verbose)
+            {
+                Serial.print("Row: ");
+                Serial.print(i);
+                Serial.print(" Col: ");
+                Serial.println(j);
+            }
+            if(j == 0) /* first field in the row*/
             {
                 previousState = currentState; 
+                if (verbose)
+                {
+                    Serial.print("j = 0 ");
+                    Serial.print("previous state");
+                    Serial.println(previousState);
+                }
             }
-            /* last element in the column*/
+            /* last element in the row*/
             else if (j == 2 && currentState == previousState && currentState != UNDEFINED)
             {
                 returnState = tttStateFromFieldState(currentState);
+                iStartingField = ROWS * i;
+                iEndingField = ROWS * i + j;
                 Serial.print("Winner found in row");
                 Serial.println(i);
             }
-            /* second field in the column */
+            /* second field in the row*/
             else
             {
                 if(previousState != currentState) 
                 {
-                    break;
+                    if(verbose)
+                    {
+                        Serial.print("Break when j = 1 ");
+                        Serial.print("Prev: ");
+                        Serial.print(previousState);
+                        Serial.print(" Current: ");
+                        Serial.println(currentState);
+                    }
+                        break;
+                }
+                else
+                {
+                    if(verbose)
+                    {
+                        Serial.println("j = 1 ");
+                    }
                 }
             }
         }
@@ -77,6 +116,10 @@ TicTacToe::t_TTTState TicTacToe::gameFinished()
 
     if (returnState == GAME_RUNNING)
     {
+        if(verbose)
+        {
+            Serial.println("Checking columns");
+        }
         /* check columns for winner */
         for (int i=0; i < ROWS; i++)
         {
@@ -84,24 +127,55 @@ TicTacToe::t_TTTState TicTacToe::gameFinished()
             for(int j = 0; j < COLUMNS; j++)
             {
                 t_FieldState currentState = aiGameFields[j][i];
+                if(verbose)
+                {
+                    Serial.print("Row: ");
+                    Serial.print(i);
+                    Serial.print(" Col: ");
+                    Serial.println(j);
+                }
                 if(j == 0) /* first field in the column*/
                 {
                     previousState = currentState;
+                    if (verbose)
+                    {
+                        Serial.print("j = 0 ");
+                        Serial.print("previous state");
+                        Serial.println(previousState);
+                    }
                 }
                 /* last element in the column*/
                 else if (j == 2 && currentState == previousState && currentState != UNDEFINED)
                 {
                     returnState = tttStateFromFieldState(currentState);
+                    iStartingField = i;
+                    iEndingField = ROWS*j + i;
                     Serial.print("Winner found in col");
-                    Serial.println(j);
+                    Serial.println(i);
                 }
                 /* second field in the column */
                 else
                 {
-                    if(previousState != currentState)
+                    if(previousState != currentState) 
                     {
+                        if(verbose)
+                        {
+                            Serial.print("Break when j = 1 ");
+                            Serial.print("Prev: ");
+                            Serial.print(previousState);
+                            Serial.print(" Current: ");
+                            Serial.println(currentState);
+                        }
                         break;
                     }
+                    else
+                    {
+                        if(verbose)
+                        {
+                            Serial.println("j = 1 ");
+                        }
+                    }
+                    
                 }
             }
         }
@@ -115,6 +189,8 @@ TicTacToe::t_TTTState TicTacToe::gameFinished()
             if ((aiGameFields[0][0] == aiGameFields[1][1]) && (aiGameFields[2][2] == aiGameFields[1][1]))
             {
                 returnState = tttStateFromFieldState(aiGameFields[0][0]);
+                iStartingField = 0;
+                iEndingField = 8;
                 Serial.println("Winner found in first diagonal");
         
             }
@@ -122,6 +198,8 @@ TicTacToe::t_TTTState TicTacToe::gameFinished()
             {
                 /* code */
                 returnState = tttStateFromFieldState(aiGameFields[0][0]);
+                iStartingField = 2;
+                iEndingField = 6;
                 Serial.println("Winner found in second diagonal");
             }
         }
@@ -146,19 +224,30 @@ TicTacToe::t_TTTState TicTacToe::gameFinished()
                 }
             }
         }
-
-        if(iCountUndefined == ROWS*COLUMNS)
+        if(iCountUndefined == 0)
         {
             returnState = DRAW;
             Serial.println("Draw");
         }
+    }
+    if (verbose)
+    {
+        Serial.println("###############");
     }
     return returnState;
 }
 
 void TicTacToe::reset()
 {
-    // TODO
+    iStartingField = 0;
+    iEndingField = 0;
+    for(int i = 0; i < ROWS; i++)
+    {
+        for (int j = 0; j < COLUMNS; j++)
+        {
+            aiGameFields[i][j] = UNDEFINED;
+        }
+    }
 }
 
 TicTacToe::t_TTTState TicTacToe::tttStateFromFieldState(t_FieldState tState)
@@ -210,10 +299,49 @@ bool TicTacToe::getGameFields(int * piGameField)
     {
         return false;
     }
-
-    for(int i = 0; i < ROWS*COLUMNS; i++)
+    
+    for(int i = 0; i < ROWS; i++)
     {
-        *(piGameField+i) = (int) aiGameFields[i];
+        for (int j = 0; j < COLUMNS; j++)
+        {
+            int iOffset = ROWS * i + j;
+            if(aiGameFields[i][j] == UNDEFINED)
+            {
+                *(piGameField + iOffset) = 0;
+            }
+            else if(aiGameFields[i][j] == PLAYER_ONE)
+            {
+                *(piGameField + iOffset) = 1;
+            }
+            else
+            {
+                *(piGameField + iOffset) = 2;
+            }
+        }
+        
     }
     return true;
+}
+
+bool TicTacToe::getWinningFields(int * piPlayer, int * piStartingField, int * piEndingField)
+{
+    t_TTTState state = gameFinished();
+    if (state == PLAYER_ONE_WON || state == PLAYER_TWO_WON)
+    {
+        *piStartingField = iStartingField;
+        *piEndingField = iEndingField;
+        if (state == PLAYER_ONE_WON)
+        {
+            *piPlayer = 1;
+        }
+        else
+        {
+            *piPlayer = 2;
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
